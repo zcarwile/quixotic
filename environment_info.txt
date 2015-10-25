@@ -2,3 +2,4 @@ conda create --name quixotic python=3.4
 pip install --upgrade google-api-python-client
 pip install httplib2
 conda install requests
+conda install spyder
