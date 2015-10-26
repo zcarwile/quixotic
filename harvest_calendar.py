@@ -24,7 +24,7 @@ DATA_DIR = '../quixotic/data/operational/calendar'
 
 """ Helper functions: these can probably be shared across all harvesters"""
 
-def get_last_collection_time_and_file_id():
+def get_last_collection_time_and_file_id(DATA_DIR):
     
     # TODO: get last timestamp and associated file id from DATA_DIR  
         
@@ -92,7 +92,7 @@ def main():
 
     startTime = datetime.datetime(2015,9,21).isoformat() + 'Z'
     now = datetime.datetime.utcnow().isoformat() + 'Z'
-    lastHarvest,file_id = get_last_collection_time_and_file_id()
+    lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR)
     file_id = file_id + 1 
 
     with open('%s/zcarwile_%d.txt' % (DATA_DIR,file_id),'w') as f:    
@@ -108,17 +108,20 @@ def main():
             print('No new events found.')
         else:
             print('%s new events found' % (str(len(events))))
-        for event in events:
-            
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['end'].get('date'))
-            org = event['organizer'].get('displayName')
-            
-            #TODO -- do I want to add support for attendees and title?        
-            
-            f.write("%s\t%s\t%s\t%s\n" % (start, end, org, event['summary']))
-            #print("%s\t%s\t%s\t%s\n" % (start, end, org, event['summary']))
         
+        
+            for event in events:
+                
+                event_id = event['id']
+                start = event['start'].get('dateTime', event['start'].get('date'))
+                end = event['end'].get('dateTime', event['end'].get('date'))
+                org = event['organizer'].get('displayName')
+                
+                #TODO -- do I want to add support for attendees and title?        
+                
+                f.write("%s\t%s\t%s\t%s\t%s\n" % (event_id,start, end, org, event['summary']))
+                #print("%s\t%s\t%s\t%s\n" % (start, end, org, event['summary']))
+            
         print('Written to %s/zcarwile_%d.txt' % (DATA_DIR,file_id))
 
 

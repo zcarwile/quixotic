@@ -1,11 +1,14 @@
 from __future__ import print_function
 import httplib2
 import os
+import sys
 
 from apiclient import discovery
 import oauth2client
 from oauth2client import client
 from oauth2client import tools
+
+from harvest_calendar import get_last_collection_time_and_file_id
 
 try:
     import argparse
@@ -17,6 +20,7 @@ SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
+DATA_DIR = '../quixotic/data/operational/email'
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -56,15 +60,47 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
 
-    results = service.users().labels().list(userId='me').execute()
-    labels = results.get('labels', [])
+    lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR)
 
-    if not labels:
-        print('No labels found.')
+    print('Collecting SENT emails since last harvest')
+    print(lastHarvest)
+
+    sys.exit()
+
+    #results = service.users().labels().list(userId='me').execute()
+    results = service.users().messages().list(userId='me',labelIds='SENT').execute()
+    messages = results.get('messages')
+    
+
+    #TODO: I'll need to handle the case of when more than 100 messages need to get added    
+    #nextPageToken = results.get('nextPageToken')
+
+    if not messages:
+        print('No messages found.')
     else:
-      print('Labels:')
-      for label in labels:
-        print(label['name'])
+        for message in messages:
+            to = ""
+            subj = ""
+            date = ""
+            m = service.users().messages().get(userId='me',id=message['id'],format='metadata').execute()
+            for header in m.get('payload').get('headers'):
+                if header['name'] == 'To':
+                    to = header['value']
+                if header['name'] == 'Subject':
+                    subj = header['value']
+                if header['name'] == 'Date':
+                    date = header['value']
+            
+            # What is this damn date format?!?
+            print(date)
+                    
+            
+        
+            
+          
+        
+        
+        
 
 
 if __name__ == '__main__':
