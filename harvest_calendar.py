@@ -10,6 +10,8 @@ from oauth2client import tools
 
 import datetime
 
+from qlib import get_last_collection_time_and_file_id
+
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -20,36 +22,7 @@ SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-DATA_DIR = '../quixotic/data/operational/calendar'
-
-""" Helper functions: these can probably be shared across all harvesters"""
-
-def get_last_collection_time_and_file_id(DATA_DIR):
-    
-    # TODO: get last timestamp and associated file id from DATA_DIR  
-        
-    last_id = 0
-    state = None
-    for filename in os.listdir(DATA_DIR):
-        fullpath = os.path.join(DATA_DIR, filename)
-        created = datetime.datetime.fromtimestamp(os.path.getctime(fullpath))
-        
-        if state == None:
-            state = created
-            last_id = int(fullpath.split("zcarwile_")[1].split(".txt")[0])
-        else:
-            if created > state:
-                state = created
-                last_id = int(fullpath.split("zcarwile_")[1].split(".txt")[0])
-
-    if state == None:
-        state = datetime.datetime(2015,9,21).isoformat() + 'Z'
-    else:
-        state = created.isoformat() + 'Z'       
-        #TODO: Need to convert file timestamp to whatever God awful format Google wants
-        pass
-       
-    return state,last_id
+DATA_DIR_CALENDAR = '../quixotic/data/operational/calendar'
     
 
 def get_credentials():
@@ -92,10 +65,10 @@ def main():
 
     startTime = datetime.datetime(2015,9,21).isoformat() + 'Z'
     now = datetime.datetime.utcnow().isoformat() + 'Z'
-    lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR)
+    lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR_CALENDAR)
     file_id = file_id + 1 
 
-    with open('%s/zcarwile_%d.txt' % (DATA_DIR,file_id),'w') as f:    
+    with open('%s/zcarwile_%d.txt' % (DATA_DIR_CALENDAR,file_id),'w') as f:    
     
         print('Getting Google Calendar events since last harvest')
         print(lastHarvest)
@@ -122,7 +95,7 @@ def main():
                 f.write("%s\t%s\t%s\t%s\t%s\n" % (event_id,start, end, org, event['summary']))
                 #print("%s\t%s\t%s\t%s\n" % (start, end, org, event['summary']))
             
-        print('Written to %s/zcarwile_%d.txt' % (DATA_DIR,file_id))
+        print('Written to %s/zcarwile_%d.txt' % (DATA_DIR_CALENDAR,file_id))
 
 
 if __name__ == '__main__':
