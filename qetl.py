@@ -50,16 +50,18 @@ cursor.execute(query)
 last_harvest_rescue_time = None
 for (maxstart) in cursor:
     if maxstart[0] is None:
-        print("No previous RescueTime data found")
+        print("No previous Rescue Time data found")
     else:
         last_harvest_rescue_time = maxstart[0]
-        print("Last RescueTime harvest:")
+        print("Last Rescue Time harvest:")
         print(last_harvest_rescue_time) #datetime.datetime
 
 cursor.close()
 
 
-# In[8]:
+# ## Rescue Time
+
+# In[5]:
 
 ### write Rescue Time events since last ETL date/(time?) (may be multiple files)
 cursor = cnx.cursor()
@@ -69,16 +71,23 @@ for file in os.listdir(DATA_DIR_RESCUE_TIME): #[stamp > last_harvest_rescue_time
     with open(file_fullpath,"r") as f:
         for line in f:
         #if event_time > last_harvest_rescue_time:
-            #write_rescuetime()
-            fout.write("Rescue Time Event\n")
-            #query
-            #cursor.execute(query)
+            event = line.split("\t")
+            start = event[0] # 2015-11-06T09:00:00 MYSQL STR_TO_DATE('2015-10-26T07:45:00', '%d-%m-%YT%h:%i:%s')
+            features = event[1]
+            title = event[2]
+            detail = event[3]
+            tags = "Rescue Time"
+            fout.write("%s\t%s\t%s\t%s\t%s\n" % (start, title, features, detail, tags))
+            query = "INSERT INTO event (start, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, features)
+            cursor.execute(query)
                 
-#cnx.commit()
-#cursor.close()
+cnx.commit()
+cursor.close()
 
 
-# In[9]:
+# ## Emails
+
+# In[5]:
 
 ### write emails from latest file
 cursor = cnx.cursor()
@@ -87,20 +96,22 @@ file_email = DATA_DIR_EMAIL + os.sep + "zcarwile_" + str(file_id_email) + ".txt"
 with open(file_email,"r") as f:
     for line in f:
         event = line.split("\t")
-        identifier = event[0]
-        start = event[1]
+        features = event[0]
+        start = event[1] # 2015-11-24 16:03:57 -- MYSQL STR_TO_DATE('2015-11-24 16:03:57', '%d-%m-%YT h:%i:%s')
         detail = event[2]
         title = event[3]
         tags = "Email"
-        fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (identifier, start, "", title, detail, tags))
-        #query = "INSERT INTO event (start, title, detail, tags, id) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, identifier)
-        #cursor.execute(query)
+        fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (features, start, "", title, detail, tags))
+        query = "INSERT INTO event (start, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, features)
+        cursor.execute(query)
 
-#cnx.commit()
-#cursor.close()
+cnx.commit()
+cursor.close()
 
 
-# In[10]:
+# ## Calendar
+
+# In[6]:
 
 ### write calendar events from latest file
 cursor = cnx.cursor()
@@ -109,22 +120,22 @@ file_calendar = DATA_DIR_CALENDAR + os.sep + "zcarwile_" + str(file_id_calendar)
 with open(file_calendar,"r") as f:
     for line in f:
         event = line.split("\t")
-        identifier = event[0]
-        start = event[1]
-        end = event[2]
+        features = event[0]
+        start = event[1][0:19] #2015-10-26T07:45:00-04:00 -- MYSQL STR_TO_DATE('2015-10-26T07:45:00', '%d-%m-%YT%h:%i:%s')
+        end = event[2] #2015-10-26T07:45:00-04:00 -- MYSQL STR_TO_DATE('2015-10-26T07:45:00', '%d-%m-%YT%h:%i:%s')
         detail = event[3]
         title = event[4]
         tags = "Calendar"
-        fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (identifier, start, end, title, detail, tags))
-        #query = "INSERT INTO event (start, end, title, detail, tags, id) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, end, title, detail, tags, identifier)
-        #cursor.execute(query)
+        fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (features, start, end, title, detail, tags))
+        query = "INSERT INTO event (start, end, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, end, title, detail, tags, features)
+        cursor.execute(query)
 
-#cnx.commit()
-#cursor.close()        
+cnx.commit()
+cursor.close()        
 
 
 
-# In[11]:
+# In[7]:
 
 ### Generated features (i.e. word count, relevance score, spamness)
 
@@ -137,16 +148,6 @@ with open(file_calendar,"r") as f:
 ### Close DB Connections
 fout.close()
 cnx.close()
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
 
 
 # In[ ]:
