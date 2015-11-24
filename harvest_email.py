@@ -67,6 +67,8 @@ def main():
     file_id = file_id + 1
 
     print('Collecting SENT emails since last harvest')
+    
+    lastHarvest = datetime.datetime.strptime(lastHarvest[0:19], "%Y-%m-%dT%H:%M:%S")
     print(lastHarvest)
     
     #results = service.users().labels().list(userId='me').execute()
@@ -99,7 +101,9 @@ def main():
                 # TO DO: otherwise break loop and finish file
                 # What is this damn date format?!?
                 #print(date)
-                f.write('%s\t%s\t%s\t%s\n' % (message['id'],date,to,subj))
+                if date > lastHarvest:
+                    f.write('%s\t%s\t%s\t%s\n' % (message['id'],date,to,subj))
+                    break
                 
         print('Written to %s/zcarwile_%d.txt' % (DATA_DIR_EMAIL,file_id))
 
