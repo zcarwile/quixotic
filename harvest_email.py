@@ -97,12 +97,9 @@ def main():
                         email_time = time.mktime(email_date)
                         date = datetime.datetime.fromtimestamp(email_time)
                         
-                # TO DO: only harvest if it's later than lastHarvest
-                # TO DO: otherwise break loop and finish file
-                # What is this damn date format?!?
-                #print(date)
                 if date > lastHarvest:
                     f.write('%s\t%s\t%s\t%s\n' % (message['id'],date,to,subj))
+                else:
                     break
                 
         print('Written to %s/zcarwile_%d.txt' % (DATA_DIR_EMAIL,file_id))
