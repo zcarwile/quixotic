@@ -2,6 +2,9 @@ from __future__ import print_function
 import httplib2
 import os
 import sys
+import email.utils
+import time
+import datetime
 
 from apiclient import discovery
 import oauth2client
@@ -88,7 +91,9 @@ def main():
                     if header['name'] == 'Subject':
                         subj = header['value']
                     if header['name'] == 'Date':
-                        date = header['value']
+                        email_date = email.utils.parsedate(header['value'])
+                        email_time = time.mktime(email_date)
+                        date = datetime.datetime.fromtimestamp(email_time)
                         
                 # TO DO: only harvest if it's later than lastHarvest
                 # TO DO: otherwise break loop and finish file
