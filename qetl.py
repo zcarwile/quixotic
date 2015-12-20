@@ -79,8 +79,11 @@ for file in os.listdir(DATA_DIR_RESCUE_TIME): #[stamp > last_harvest_rescue_time
             tags = "Rescue Time"
             fout.write("%s\t%s\t%s\t%s\t%s\n" % (start, title, features, detail, tags))
             query = "INSERT INTO event (start, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, features)
-            cursor.execute(query)
-                
+            try:            
+                cursor.execute(query)
+            except:
+                print("ERROR: %s" % (query))
+            
 cnx.commit()
 cursor.close()
 
@@ -103,7 +106,10 @@ with open(file_email,"r") as f:
         tags = "Email"
         fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (features, start, "", title, detail, tags))
         query = "INSERT INTO event (start, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, features)
-        cursor.execute(query)
+        try:            
+            cursor.execute(query)
+        except:
+            print("ERROR: %s" % (query))
 
 cnx.commit()
 cursor.close()
@@ -128,7 +134,10 @@ with open(file_calendar,"r") as f:
         tags = "Calendar"
         fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (features, start, end, title, detail, tags))
         query = "INSERT INTO event (start, end, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, end, title, detail, tags, features)
-        cursor.execute(query)
+        try:            
+            cursor.execute(query)
+        except:
+            print("ERROR: %s" % (query))
 
 cnx.commit()
 cursor.close()        

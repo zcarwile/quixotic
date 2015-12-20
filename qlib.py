@@ -27,7 +27,7 @@ def get_last_collection_time_and_file_id(DATA_DIR_CALENDAR):
             last_id = -1
 
     if state == None:
-        state = datetime.datetime(2015,9,21).isoformat() + 'Z'
+        state = datetime.datetime(2015,10,21).isoformat() + 'Z'
     else:
         state = created.isoformat() + 'Z'       
         #TODO: Need to convert file timestamp to whatever God awful format Google wants
