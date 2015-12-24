@@ -25,7 +25,7 @@ order by event_hour asc;
 create view events_by_day2 as
 select count(id) as event_count,
 tags,
-STR_TO_DATE(DATE_FORMAT(start, "%Y-%m-%d"),"%Y-%m-%d") AS event_day
+STR_TO_DATE(DATE_FORMAT(start, "%Y-%m-%d"),"%Y-%m-%d %H:00:00") AS event_day
 from event
 group by event_day, tags
 order by event_day asc;
