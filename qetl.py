@@ -1,3 +1,4 @@
+#!/Users/zcarwile/miniconda/envs/quixotic/bin/python
 
 # coding: utf-8
 
@@ -74,8 +75,8 @@ for file in os.listdir(DATA_DIR_RESCUE_TIME): #[stamp > last_harvest_rescue_time
             event = line.split("\t")
             start = event[0] # 2015-11-06T09:00:00 MYSQL STR_TO_DATE('2015-10-26T07:45:00', '%d-%m-%YT%h:%i:%s')
             features = event[1]
-            title = event[2]
-            detail = event[3]
+            title = event[2].replace("\"","")
+            detail = event[3].replace("\"","")
             tags = "Rescue Time"
             fout.write("%s\t%s\t%s\t%s\t%s\n" % (start, title, features, detail, tags))
             query = "INSERT INTO event (start, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, features)
@@ -101,8 +102,8 @@ with open(file_email,"r") as f:
         event = line.split("\t")
         features = event[0]
         start = event[1] # 2015-11-24 16:03:57 -- MYSQL STR_TO_DATE('2015-11-24 16:03:57', '%d-%m-%YT h:%i:%s')
-        detail = event[2]
-        title = event[3]
+        detail = event[2].replace("\"","")
+        title = event[3].replace("\"","")
         tags = "Email"
         fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (features, start, "", title, detail, tags))
         query = "INSERT INTO event (start, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, title, detail, tags, features)
@@ -129,8 +130,8 @@ with open(file_calendar,"r") as f:
         features = event[0]
         start = event[1][0:19] #2015-10-26T07:45:00-04:00 -- MYSQL STR_TO_DATE('2015-10-26T07:45:00', '%d-%m-%YT%h:%i:%s')
         end = event[2] #2015-10-26T07:45:00-04:00 -- MYSQL STR_TO_DATE('2015-10-26T07:45:00', '%d-%m-%YT%h:%i:%s')
-        detail = event[3]
-        title = event[4]
+        detail = event[3].replace("\"","")
+        title = event[4].replace("\"","")
         tags = "Calendar"
         fout.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (features, start, end, title, detail, tags))
         query = "INSERT INTO event (start, end, title, detail, tags, features) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (start, end, title, detail, tags, features)
