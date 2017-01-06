@@ -1,3 +1,5 @@
+#!/Users/zcarwile/miniconda/envs/quixotic/bin/python
+
 from __future__ import print_function
 import httplib2
 import os
@@ -5,6 +7,7 @@ import sys
 import email.utils
 import time
 import datetime
+import pytz
 
 from apiclient import discovery
 import oauth2client
@@ -24,6 +27,8 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
 DATA_DIR_EMAIL = '../quixotic/data/operational/email'
+
+localtime = pytz.reference.LocalTimezone()
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -67,9 +72,8 @@ def main():
     file_id = file_id + 1
 
     print('Collecting SENT emails since last harvest')
-    
-    lastHarvest = datetime.datetime.strptime(lastHarvest[0:19], "%Y-%m-%dT%H:%M:%S")
     print(lastHarvest)
+    
     
     #results = service.users().labels().list(userId='me').execute()
     results = service.users().messages().list(userId='me',labelIds='SENT').execute()
@@ -93,12 +97,23 @@ def main():
                     if header['name'] == 'Subject':
                         subj = header['value']
                     if header['name'] == 'Date':
-                        email_date = email.utils.parsedate(header['value'])
-                        email_time = time.mktime(email_date)
+                        email_date = email.utils.parsedate_tz(header['value'])
+                        REMOTE_TIME_ZONE_OFFSET = email_date[9]                        
+                        email_time = time.mktime(email_date[0:9]) - REMOTE_TIME_ZONE_OFFSET
                         date = datetime.datetime.fromtimestamp(email_time)
-                        
-                if date > lastHarvest:
-                    f.write('%s\t%s\t%s\t%s\n' % (message['id'],date,to,subj))
+                       
+                         # this is UTC
+                        aware_date = pytz.utc.localize(date)
+                       
+
+                        # this is local -- OK for now because one time zone
+                        # eventually, harvesters should just keep everything unified                       
+                        aware_local = aware_date.astimezone(localtime)
+                
+                snippet = m.get('snippet')
+                               
+                if aware_local > lastHarvest:
+                    f.write('%s\t%s\t%s\t%s\t%s\n' % (message['id'],aware_local,to,subj, snippet))
                 else:
                     break
                 

@@ -65,7 +65,6 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    startTime = datetime.datetime(2015,9,21).isoformat() + 'Z'
     now = datetime.datetime.utcnow().isoformat() + 'Z'
     lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR_CALENDAR)
     file_id = file_id + 1 
@@ -73,9 +72,10 @@ def main():
     with open('%s/zcarwile_%d.txt' % (DATA_DIR_CALENDAR,file_id),'w') as f:    
     
         print('Getting Google Calendar events since last harvest')
-        print(lastHarvest)
+        here_google = lastHarvest.replace(microsecond=0).isoformat("T")
+        print(here_google)
         eventsResult = service.events().list(
-            calendarId='primary', timeMin=lastHarvest, timeMax=now, singleEvents=True,
+            calendarId='primary', timeMin=here_google, timeMax=now, singleEvents=True,
             orderBy='startTime').execute()
         events = eventsResult.get('items', [])
     
@@ -83,14 +83,14 @@ def main():
             print('No new events found.')
         else:
             print('%s new events found' % (str(len(events))))
-        
-        
+              
             for event in events:
                 
                 event_id = event['id']
                 start = event['start'].get('dateTime', event['start'].get('date'))
                 end = event['end'].get('dateTime', event['end'].get('date'))
                 org = event['organizer'].get('displayName')
+                print(start)
                 
                 #TODO -- do I want to add support for attendees and title?        
                 
