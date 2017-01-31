@@ -1,8 +1,12 @@
-#!/Users/zcarwile/anaconda/envs/quixotic/bin/python
 
 # coding: utf-8
 
-# In[7]:
+# In[ ]:
+
+#!/home/ubuntu/.conda/envs/quixotic/bin/python
+
+
+# In[1]:
 
 import pandas as pd
 import os
@@ -12,7 +16,19 @@ import pytz
 import parameters
 
 
-# In[8]:
+# In[3]:
+
+# TO DO: move DB parameters to file
+
+import mysql.connector
+
+DB_USER = parameters.DB_USER
+DB_PASSWORD = parameters.DB_PASSWORD
+DB_HOST = parameters.DB_HOST
+DB_NAME = parameters.DB_NAME
+
+
+# In[3]:
 
 DATA_DIR_RESCUE_TIME = parameters.DATA_DIR_RESCUE_TIME
 DATA_DIR_EMAIL = parameters.DATA_DIR_EMAIL
@@ -22,7 +38,7 @@ ETL_DIR = parameters.ETL_DIR
 USER_TIMEZONE = "US/Eastern"
 
 
-# In[32]:
+# In[4]:
 
 df_rt = pd.DataFrame()
 names = ['hour', 'duration', 'subject', 'detail']
@@ -41,7 +57,7 @@ for file in os.listdir(DATA_DIR_RESCUE_TIME):
 df_rt.tail()
 
 
-# In[33]:
+# In[5]:
 
 # to make RT data "aware"
 def to_aware(hour, timezone):
@@ -53,7 +69,7 @@ df_rt['event_start'] = df_rt.apply(lambda row: to_aware(row['hour'], USER_TIMEZO
 df_rt['event_start'] = pd.to_datetime(df_rt['event_start'], utc=True)
 
 
-# In[34]:
+# In[6]:
 
 # create fake end time
 # ultimately, rescue time is a poor data source because we're not using the raw tracks.  but ok for illustration
@@ -71,7 +87,7 @@ df_rt.drop('hour', 1, inplace=True)
 df_rt.drop('duration', 1, inplace=True)
 
 
-# In[38]:
+# In[7]:
 
 df_rt.sort_values(by='event_start', inplace=True)
 df_rt['source'] = 'Rescue Time'
@@ -79,13 +95,13 @@ df_rt['source'] = 'Rescue Time'
 df_rt.tail()
 
 
-# In[39]:
+# In[8]:
 
 # Email
 #file = 'zcarwile_1.txt'
 
 df_email = pd.DataFrame()
-names = ['id','sent','person','subject','detail']
+names = ['event_id','sent','person','subject','detail']
 
 for file in os.listdir(DATA_DIR_EMAIL):
     if ".txt" in file:
@@ -106,12 +122,12 @@ df_email['source'] = 'Gmail'
 df_email.tail()
 
 
-# In[40]:
+# In[9]:
 
 # Calendar
 #file = 'zcarwile_1.txt'
 df_calendar = pd.DataFrame()
-names = ['id','start_time','end_time','person','subject']
+names = ['event_id','start_time','end_time','person','subject']
 
 for file in os.listdir(DATA_DIR_CALENDAR):
     if ".txt" in file:
@@ -140,7 +156,7 @@ df_calendar.tail()
 
 
 
-# In[41]:
+# In[10]:
 
 # Check for unified data types in timestamp
 print(type(df_rt.loc[0]['event_start']))
@@ -150,7 +166,7 @@ print(type(df_calendar.loc[0]['event_start']))
 print(type(df_calendar.loc[0]['event_end']))
 
 
-# In[41]:
+# In[11]:
 
 
 frames = [df_rt, df_email, df_calendar]
@@ -160,7 +176,7 @@ result.sort_values(by='event_start', inplace=True)
 result.tail(100)
 
 
-# In[42]:
+# In[12]:
 
 # unified file with UTC timestamps
 
@@ -168,7 +184,17 @@ outfile = '%s/%s' % (ETL_DIR, 'zcarwile.txt')
 result.to_csv(outfile, sep="\t")
 
 
-# In[ ]:
+# In[13]:
+
+# test for file pulled from EC2
+
+#z = pd.read_csv('zcarwile.txt','\t')
+#z.tail()
 
 
+# In[18]:
+
+cnx = mysql.connector.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, db=DB_NAME)
+result.to_sql('quixotic_api_event', cnx, flavor='mysql', if_exists='replace') # index=Flase, index_label=None
+cnx.close()
 
