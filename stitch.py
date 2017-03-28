@@ -1,10 +1,4 @@
-
-# coding: utf-8
-
-# In[1]:
-
 #!/home/ubuntu/.conda/envs/quixotic/bin/python
-
 
 # In[16]:
 
@@ -195,8 +189,16 @@ result.to_csv(outfile, sep="\t")
 
 # In[38]:
 
+result.tail(300)
+
 cnx = mysql.connector.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, db=DB_NAME)
-result.to_sql('quixotic_api_event', cnx, flavor='mysql', if_exists='append', index=True, index_label='id')
+
+cursor = cnx.cursor()
+cursor.execute("""TRUNCATE TABLE quixotic_api_event""")
+cnx.commit()
+cursor.close()
+
+result.to_sql('quixotic_api_event', cnx, flavor='mysql', if_exists='append', index=False) #, index_label='id')
 cnx.close()
 
 
