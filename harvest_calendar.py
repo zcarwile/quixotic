@@ -1,4 +1,3 @@
-#!/Users/zcarwile/miniconda/envs/quixotic/bin/python
 
 from __future__ import print_function
 import httplib2
@@ -21,10 +20,9 @@ except ImportError:
     flags = None
 
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-DATA_DIR_CALENDAR = '../quixotic/data/operational/calendar'
+import parameters
     
 
 def get_credentials():
@@ -46,7 +44,7 @@ def get_credentials():
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow = client.flow_from_clientsecrets(parameters.CLIENT_SECRET_FILE, SCOPES)
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store, flags)
@@ -66,10 +64,10 @@ def main():
     service = discovery.build('calendar', 'v3', http=http)
 
     now = datetime.datetime.utcnow().isoformat() + 'Z'
-    lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR_CALENDAR)
+    lastHarvest,file_id = get_last_collection_time_and_file_id(parameters.DATA_DIR_CALENDAR)
     file_id = file_id + 1 
 
-    with open('%s/zcarwile_%d.txt' % (DATA_DIR_CALENDAR,file_id),'w') as f:    
+    with open('%s/zcarwile_%d.txt' % (parameters.DATA_DIR_CALENDAR,file_id),'w') as f:    
     
         print('Getting Google Calendar events since last harvest')
         here_google = lastHarvest.replace(microsecond=0).isoformat("T")
@@ -85,19 +83,20 @@ def main():
             print('%s new events found' % (str(len(events))))
               
             for event in events:
+                print(type(event))
                 
                 event_id = event['id']
                 start = event['start'].get('dateTime', event['start'].get('date'))
                 end = event['end'].get('dateTime', event['end'].get('date'))
                 org = event['organizer'].get('displayName')
-                print(start)
+                #print(start)
                 
                 #TODO -- do I want to add support for attendees and title?        
                 
                 f.write("%s\t%s\t%s\t%s\t%s\n" % (event_id,start, end, org, event['summary']))
                 #print("%s\t%s\t%s\t%s\n" % (start, end, org, event['summary']))
             
-        print('Written to %s/zcarwile_%d.txt' % (DATA_DIR_CALENDAR,file_id))
+        print('Written to %s/zcarwile_%d.txt' % (parameters.DATA_DIR_CALENDAR,file_id))
 
 
 if __name__ == '__main__':

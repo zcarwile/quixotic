@@ -1,0 +1,7 @@
+/secrets
+.ipynb_checkpoints/
+.projectignore
+__pycache__/
+envs/
+parameters.py
+

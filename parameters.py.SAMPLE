@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan  7 12:46:14 2017
+
+@author: zcarwile
+"""
+
+# Fill in values and rename file to parameters.py
+
+DATA_DIR_RESCUE_TIME = '../quixotic_data/operational/rescue_time'
+DATA_DIR_CALENDAR = '../quixotic_data/operational/calendar'
+DATA_DIR_EMAIL = '../quixotic_data/operational/email'
+
+RESCUE_TIME_KEY = "./secrets/rescue_time_key"
+CLIENT_SECRET_FILE = './secrets/client_secret.json'
+
+ETL_DIR = '../quixotic_data/analytical'
+
+DB_USER = 'root'
+DB_PASSWORD = ''
+DB_HOST = '127.0.0.1'
+DB_NAME = 'quixotic_webapp'

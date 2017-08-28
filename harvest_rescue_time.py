@@ -6,11 +6,11 @@ from pytz import reference
 
 from qlib import get_last_collection_time_and_file_id
 
-DATA_DIR_RESCUE_TIME = '../quixotic/data/operational/rescue_time'
+import parameters
 
 def main():
 
-    with open("rescue_time_key") as f:
+    with open(parameters.RESCUE_TIME_KEY) as f:
         key=f.read().strip()
         
         # TODO: Parameters
@@ -18,7 +18,7 @@ def main():
         interval = "hour"
         format = "json"
             
-        lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR_RESCUE_TIME)
+        lastHarvest,file_id = get_last_collection_time_and_file_id(parameters.DATA_DIR_RESCUE_TIME)
         date = lastHarvest.strftime("%Y-%m-%d")
     
         # get NOW    
@@ -45,9 +45,8 @@ def main():
             
             data = response.json()
             rows = data['rows']
-            print(data)
          
-            with open('%s/zcarwile_%s.txt' % (DATA_DIR_RESCUE_TIME,str_date),'w') as f:    
+            with open('%s/zcarwile_%s.txt' % (parameters.DATA_DIR_RESCUE_TIME,str_date),'w') as f:    
                 for row in rows:
                     if int(row[1]) > 60: 
                         f.write('%s\t%s\t%s\t%s\n' %  (row[0],row[1],row[3],row[4]))

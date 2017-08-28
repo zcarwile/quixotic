@@ -23,10 +23,9 @@ except ImportError:
     flags = None
 
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
-DATA_DIR_EMAIL = '../quixotic/data/operational/email'
+import parameters
 
 localtime = pytz.reference.LocalTimezone()
 
@@ -49,7 +48,7 @@ def get_credentials():
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow = client.flow_from_clientsecrets(parameters.CLIENT_SECRET_FILE, SCOPES)
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store, flags)
@@ -68,7 +67,7 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
 
-    lastHarvest,file_id = get_last_collection_time_and_file_id(DATA_DIR_EMAIL)
+    lastHarvest,file_id = get_last_collection_time_and_file_id(parameters.DATA_DIR_EMAIL)
     file_id = file_id + 1
 
     print('Collecting SENT emails since last harvest')
@@ -82,7 +81,7 @@ def main():
 
     #TODO: I'll need to handle the case of when more than 100 messages need to get added    
     #nextPageToken = results.get('nextPageToken')
-    with open('%s/zcarwile_%d.txt' % (DATA_DIR_EMAIL,file_id),'w') as f:
+    with open('%s/zcarwile_%d.txt' % (parameters.DATA_DIR_EMAIL,file_id),'w') as f:
         if not messages:
             print('No messages found.')
         else:
@@ -117,7 +116,7 @@ def main():
                 else:
                     break
                 
-        print('Written to %s/zcarwile_%d.txt' % (DATA_DIR_EMAIL,file_id))
+        print('Written to %s/zcarwile_%d.txt' % (parameters.DATA_DIR_EMAIL,file_id))
 
 if __name__ == '__main__':
     main()
